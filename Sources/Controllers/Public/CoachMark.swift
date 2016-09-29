@@ -25,7 +25,7 @@ import UIKit
 /// This structure handle the parametrization of a given coach mark.
 /// It doesn't provide any clue about the way it will look, however.
 public struct CoachMark {
-    //MARK: Public properties
+    //mark: Public properties
     /// Change this value to change the duration of the fade.
     public var animationDuration = Constants.coachMarkFadeAnimationDuration
 
@@ -64,20 +64,20 @@ public struct CoachMark {
     /// Set this property to `true` to allow touch forwarding inside the cutoutPath.
     public var allowTouchInsideCutoutPath: Bool = false
 
-    //MARK: Initialization
+    //mark: Initialization
     /// Allocate and initialize a Coach mark with default values.
     public init () {
 
     }
 
-    //MARK: Internal Methods
+    //mark: Internal Methods
     /// This method perform both `computeOrientationInFrame` and `computePointOfInterestInFrame`.
     ///
     /// - Parameter frame: the frame in which compute the orientation
     ///                    (likely to match the overlay's frame)
-    internal mutating func computeMetadataForFrame(frame: CGRect) {
-        self.computeOrientationInFrame(frame)
-        self.computePointOfInterestInFrame()
+    internal mutating func computeMetadata(inFrame frame: CGRect) {
+        self.computeOrientation(inFrame: frame)
+        self.computePointOfInterest()
     }
 
     /// Compute the orientation of the arrow, given the frame in which the coach mark
@@ -85,7 +85,7 @@ public struct CoachMark {
     ///
     /// - Parameter frame: the frame in which compute the orientation
     ///                    (likely to match the overlay's frame)
-    internal mutating func computeOrientationInFrame(frame: CGRect) {
+    internal mutating func computeOrientation(inFrame frame: CGRect) {
         // No cutout path means no arrow. That way, no orientation
         // computation is needed.
         guard let cutoutPath = self.cutoutPath else {
@@ -98,15 +98,15 @@ public struct CoachMark {
         }
 
         if cutoutPath.bounds.origin.y > frame.size.height / 2 {
-            self.arrowOrientation = .Bottom
+            self.arrowOrientation = .bottom
         } else {
-            self.arrowOrientation = .Top
+            self.arrowOrientation = .top
         }
     }
 
     /// Compute the orientation of the arrow, given the frame in which the coach mark
     /// will be displayed.
-    internal mutating func computePointOfInterestInFrame() {
+    internal mutating func computePointOfInterest() {
         /// If the value is already set, don't do anything.
         if self.pointOfInterest != nil { return }
 

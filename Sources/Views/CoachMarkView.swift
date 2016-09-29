@@ -25,13 +25,8 @@ import UIKit
 // swiftlint:disable force_cast
 
 /// The actual coach mark that will be displayed.
-///
-/// Note: This class is final for two reasons:
-/// 1. It doesn't implement properly all the UIView initializers
-/// 2. It is not suppoed to be subclassed at the moment, as it only acts as
-///    container for body and arrow views.
-final internal class CoachMarkView: UIView {
-    //MARK: - Internal properties
+class CoachMarkView: UIView {
+    //mark: - Internal properties
 
     /// The body of the coach mark (likely to contain some text).
     let bodyView: CoachMarkBodyView
@@ -53,17 +48,13 @@ final internal class CoachMarkView: UIView {
         }
     }
 
-    //MARK: - Private properties
-
+    //mark: - Private properties
     private var bodyUIView: UIView { return bodyView as! UIView }
-
     private var arrowUIView: UIView? { return arrowView as? UIView }
-
     private var innerConstraints = CoachMarkViewConstraints()
-
     private let coachMarkLayoutHelper: CoachMarkInnerLayoutHelper
 
-    //MARK: - Initialization
+    //mark: - Initialization
 
     /// Allocate and initliaze the coach mark view, with the given subviews.
     ///
@@ -111,7 +102,7 @@ final internal class CoachMarkView: UIView {
         fatalError("This class does not support NSCoding.")
     }
 
-    //MARK: - Internal Method
+    //mark: - Internal Method
 
     //TODO: Better documentation
     /// Change the arrow horizontal position to the given position.
@@ -122,7 +113,7 @@ final internal class CoachMarkView: UIView {
     ///
     /// - Parameter position: arrow position
     /// - Parameter offset: arrow offset
-    func changeArrowPositionTo(position: ArrowPosition, offset: CGFloat) {
+    func changeArrowPosition(to position: ArrowPosition, offset: CGFloat) {
 
         guard let arrowUIView = arrowUIView else { return }
 
@@ -137,20 +128,20 @@ final internal class CoachMarkView: UIView {
         self.addConstraint(innerConstraints.arrowXposition!)
     }
 
-    //MARK: - Private Method
+    //mark: - Private Method
 
     /// Layout the body view and the arrow view together.
-    private func layoutViewComposition() {
+    fileprivate func layoutViewComposition() {
         translatesAutoresizingMaskIntoConstraints = false
 
         self.addSubview(bodyUIView)
         self.addConstraints(coachMarkLayoutHelper.horizontalConstraints(forBody: bodyUIView))
 
-        if let arrowUIView = arrowUIView, arrowOrientation = self.arrowOrientation {
+        if let arrowUIView = arrowUIView, let arrowOrientation = self.arrowOrientation {
             self.addSubview(arrowUIView)
 
             innerConstraints.arrowXposition = coachMarkLayoutHelper.horizontalArrowConstraints(
-                for: (bodyView: bodyUIView, arrowView: arrowUIView), withPosition: .Center,
+                for: (bodyView: bodyUIView, arrowView: arrowUIView), withPosition: .center,
                 horizontalOffset: 0)
 
             self.addConstraint(innerConstraints.arrowXposition!)
@@ -165,9 +156,9 @@ final internal class CoachMarkView: UIView {
     }
 }
 
-//MARK: - Protocol conformance | CoachMarkBodyHighlightArrowDelegate
+//mark: - Protocol conformance | CoachMarkBodyHighlightArrowDelegate
 extension CoachMarkView: CoachMarkBodyHighlightArrowDelegate {
-    func highlightArrow(highlighted: Bool) {
+    func highlightArrow(_ highlighted: Bool) {
         self.arrowView?.highlighted = highlighted
     }
 }
@@ -175,10 +166,10 @@ extension CoachMarkView: CoachMarkBodyHighlightArrowDelegate {
 struct CoachMarkViewConstraints {
     /// The horizontal position of the arrow, likely to be at the center of the
     /// cutout path.
-    private var arrowXposition: NSLayoutConstraint?
+    fileprivate var arrowXposition: NSLayoutConstraint?
 
     /// The constraint making the body stick to its parent.
-    private var bodyStickToParent: NSLayoutConstraint?
+    fileprivate var bodyStickToParent: NSLayoutConstraint?
 
     init () { }
 }

@@ -25,7 +25,7 @@ import UIKit
 // Overlay a blocking view on top of the screen and handle the cutout path
 // around the point of interest.
 public class OverlayView: UIView {
-    //MARK: - Public properties
+    //mark: - Public properties
     /// The background color of the overlay
     public var color: UIColor = Constants.overlayColor
 
@@ -48,7 +48,7 @@ public class OverlayView: UIView {
     /// The original cutout path
     public var cutoutPath: UIBezierPath? {
         set(cutoutPath) {
-            updateCutoutPath(cutoutPath)
+            update(cutoutPath: cutoutPath)
         }
 
         get {
@@ -76,14 +76,14 @@ public class OverlayView: UIView {
     /// Used to temporarily enable touch forwarding isnide the cutoutPath.
     public var allowTouchInsideCutoutPath: Bool = false
 
-    //MARK: Internal Properties
+    //mark: Internal Properties
     /// Used to temporarily disable the tap, for a given coachmark.
     internal var enableTap: Bool = true
 
     /// Delegate to which tell that the overlay view received a tap event.
     internal weak var delegate: OverlayViewDelegate?
 
-    //MARK: - Private properties
+    //mark: - Private properties
     /// The overlay layer, which will handle the background color
     private var overlayLayer = CALayer()
 
@@ -100,7 +100,7 @@ public class OverlayView: UIView {
         return gestureRecognizer
     }()
 
-    //MARK: - Initialization
+    //mark: - Initialization
     init() {
         layerManager = OverlayViewLayerManager(layer: overlayLayer)
         super.init(frame: CGRect.zero)
@@ -111,22 +111,22 @@ public class OverlayView: UIView {
         fatalError("This class does not support NSCoding")
     }
 
-    //MARK: - Internal methods
+    //mark: - Internal methods
 
     /// Prepare for the fade, by removing the cutout shape.
     func prepareForFade() {
-        updateCutoutPath(nil)
+        update(cutoutPath: nil)
     }
 
     /// Show/hide a cutout path with fade in animation
     ///
     /// - Parameter show: `true` to show the cutout path, `false` to hide.
     /// - Parameter duration: duration of the animation
-    func showCutoutPathView(show: Bool, withAnimationDuration duration: NSTimeInterval) {
+    func showCutoutPath(_ show: Bool, withAnimationDuration duration: TimeInterval) {
         if show {
-            layerManager.showCutoutPathViewWithAnimationDuration(duration)
+            layerManager.showCutoutPathView(withAnimationDuration: duration)
         } else {
-            layerManager.hideCutoutPathViewWithAnimationDuration(duration)
+            layerManager.hideCutoutPathView(withAnimationDuration: duration)
         }
     }
 
@@ -135,7 +135,7 @@ public class OverlayView: UIView {
     /// some jaggy effects are to be expected.
     ///
     /// - Parameter cutoutPath: the cutout path
-    func updateCutoutPath(cutoutPath: UIBezierPath?) {
+    func update(cutoutPath: UIBezierPath?) {
         if cutoutPath == nil {
             if blurEffectView == nil {
                 backgroundColor = color
@@ -147,19 +147,19 @@ public class OverlayView: UIView {
 
                 overlayLayer.frame = bounds
 
-                overlayLayer.backgroundColor = color.CGColor
+                overlayLayer.backgroundColor = color.cgColor
 
                 layer.addSublayer(overlayLayer)
             }
 
-            backgroundColor = UIColor.clearColor()
+            backgroundColor = UIColor.clear
         }
 
         layerManager.cutoutPath = cutoutPath
     }
 
-    override public func hitTest(point: CGPoint, withEvent event: UIEvent?) -> UIView? {
-        let hitView = super.hitTest(point, withEvent: event)
+    override public func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hitView = super.hitTest(point, with: event)
 
         if hitView == self {
             guard let cutoutPath = self.cutoutPath else {
@@ -170,7 +170,7 @@ public class OverlayView: UIView {
                 return hitView
             }
 
-            if cutoutPath.containsPoint(point) {
+            if cutoutPath.contains(point) {
                 return nil
             } else {
                 return hitView
@@ -180,33 +180,33 @@ public class OverlayView: UIView {
         return hitView
     }
 
-    override public func layoutSublayersOfLayer(layer: CALayer) {
-        super.layoutSublayersOfLayer(layer)
+    override public func layoutSublayers(of layer: CALayer) {
+        super.layoutSublayers(of: layer)
 
         if layer == self.layer {
             overlayLayer.frame = bounds
         }
     }
 
-    //MARK: - Private Methods
+    //mark: - Private Methods
 
     /// Creates the visual effect view holding
     /// the blur effect and adds it to the overlay.
-    private func createBlurView() {
+    fileprivate func createBlurView() {
         guard let blurEffectStyle = blurEffectStyle else { return }
 
         overlayLayer.removeFromSuperlayer()
 
         let helper = BlurEffectViewHelper()
 
-        blurEffectView = helper.buildBlurEffectView(withStyle: blurEffectStyle)
-        helper.addBlurView(blurEffectView!, to: self)
+        blurEffectView = helper.makeBlurEffectView(style: blurEffectStyle)
+        helper.add(blurEffectView!, to: self)
 
         layerManager.managedLayer = blurEffectView!.layer
     }
 
     /// Removes the view holding the blur effect.
-    private func destroyBlurView() {
+    fileprivate func destroyBlurView() {
         self.blurEffectView?.removeFromSuperview()
         self.blurEffectView = nil
 
@@ -217,7 +217,7 @@ public class OverlayView: UIView {
     /// a tap event.
     ///
     /// - Parameter sender: the object which sent the event
-    @objc private func handleSingleTap(sender: AnyObject?) {
+    @objc fileprivate func handleSingleTap(_ sender: AnyObject?) {
         if enableTap {
             self.delegate?.didReceivedSingleTap()
         }
