@@ -27,47 +27,47 @@ import Instructions
 // Unleash the Network Link Conditioner!
 internal class BackgroundNetworkingViewController: DefaultViewController {
 
-    //MARK: - Private properties
-    private lazy var urlSession: NSURLSession = {
-        let configuration = NSURLSessionConfiguration.backgroundSessionConfigurationWithIdentifier("BackgroundNetworking")
+    //mark: - Private properties
+    fileprivate lazy var urlSession: Foundation.URLSession = {
+        let configuration = URLSessionConfiguration.background(withIdentifier: "BackgroundNetworking")
         configuration.sessionSendsLaunchEvents = true
-        configuration.discretionary = true
+        configuration.isDiscretionary = true
 
-        return NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        return Foundation.URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
     }()
 
-    private var downloadTask: NSURLSessionDownloadTask?
+    fileprivate var downloadTask: URLSessionDownloadTask?
 
-    //MARK: - View Lifecycle
+    //mark: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         coachMarksController?.delegate = self
     }
 
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         startDownload()
     }
 
-    //MARK: - Internal Methods
+    //mark: - Internal Methods
     override func startInstructions() {
         // Do nothing and override super.
     }
 
     func startDownload() {
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
 
-        if let url = NSURL(string: "http://ephread.com/assets/videos/instructions.mp4") {
-            downloadTask = urlSession.downloadTaskWithURL(url)
+        if let url = URL(string: "http://ephread.com/assets/videos/instructions.mp4") {
+            downloadTask = urlSession.downloadTask(with: url)
             downloadTask?.resume()
         }
     }
 }
 
-//MARK: - CoachMarksControllerDelegate
+//mark: - CoachMarksControllerDelegate
 extension BackgroundNetworkingViewController: CoachMarksControllerDelegate {
-    func coachMarksController(coachMarksController: CoachMarksController, inout coachMarkWillShow coachMark: CoachMark, forIndex index: Int) {
+    func coachMarksController(_ coachMarksController: CoachMarksController, coachMarkWillShow coachMark: inout CoachMark, forIndex index: Int) {
         if index == 2 {
             coachMarksController.pause()
             startDownload()
@@ -76,14 +76,14 @@ extension BackgroundNetworkingViewController: CoachMarksControllerDelegate {
 
 }
 
-//MARK: - NSURLSessionDownloadDelegate
-extension BackgroundNetworkingViewController: NSURLSessionDownloadDelegate {
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didFinishDownloadingToURL location: NSURL) {
+//mark: - NSURLSessionDownloadDelegate
+extension BackgroundNetworkingViewController: URLSessionDownloadDelegate {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         print("Finished.")
 
-        UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
 
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             if let coachMarksController = self.coachMarksController {
                 if !coachMarksController.flow.started {
                     self.coachMarksController?.startOn(self)
@@ -94,21 +94,21 @@ extension BackgroundNetworkingViewController: NSURLSessionDownloadDelegate {
         }
     }
 
-    func URLSession(session: NSURLSession, downloadTask: NSURLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+    func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
 
         let progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
-        let size = NSByteCountFormatter.stringFromByteCount(totalBytesExpectedToWrite, countStyle: NSByteCountFormatterCountStyle.Binary)
+        let size = ByteCountFormatter.string(fromByteCount: totalBytesExpectedToWrite, countStyle: ByteCountFormatter.CountStyle.binary)
 
         print(String(format: "%.1f%% of %@",  progress * 100, size))
     }
 
-    func URLSessionDidFinishEventsForBackgroundURLSession(session: NSURLSession) {
-        guard let appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate else { return }
+    func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
         guard let completionHandler = appDelegate.backgroundSessionCompletionHandler else { return }
 
         appDelegate.backgroundSessionCompletionHandler = nil
 
-        dispatch_async(dispatch_get_main_queue(), {
+        DispatchQueue.main.async(execute: {
             completionHandler()
         })
     }
