@@ -178,7 +178,7 @@ extension CoachMarksViewController {
 
         let coachMarkView = coachMarkDisplayManager.createCoachMarkView(from: coachMark,
                                                                         at: index)
-
+        
         currentCoachMarkView = coachMarkView
 
         addTargetToCurrentCoachView()
@@ -201,7 +201,7 @@ extension CoachMarksViewController {
     }
 
     private func enableInteraction() {
-        instructionsRootView.isUserInteractionEnabled = true
+        instructionsRootView.isUserInteractionEnabled = false
         overlayView.isUserInteractionEnabled = true
         currentCoachMarkView?.isUserInteractionEnabled = true
         skipView?.asView?.isUserInteractionEnabled = true
